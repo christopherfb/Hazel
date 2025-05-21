@@ -3,6 +3,7 @@
 #include <memory>
 #include "Core.h"
 #include "spdlog/spdlog.h"
+#include "spdlog/fmt/ostr.h"  // output stream log allows us to log custom types (like Events)
 
 namespace Hazel {
 
