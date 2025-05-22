@@ -1,3 +1,5 @@
+#include "hzpch.h"
+
 #include "Application.h"
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Log.h"
@@ -14,8 +16,8 @@ namespace Hazel {
 
 	void Application::Run()
 	{
-		WindowResizeEvent e(1280, 720);
-		
+		WindowResizeEvent e(1280, 720);       
+		 
 		// HZ_TRACE(e);  // In the video - this line was used, but it didn't compile.  
 		// A comment said the fix was to add e.ToString() (see below)
 		if (e.IsInCategory(EventCategoryApplication)) {
