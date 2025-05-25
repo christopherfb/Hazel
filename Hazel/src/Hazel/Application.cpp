@@ -5,7 +5,9 @@
 
 // #include "Hazel/Log.h" // now in pch
 
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
+
+#include <glad/glad.h>  //  Video:14 @ 19:38 explains this.
 
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
@@ -17,7 +19,6 @@ namespace Hazel {
 		// the long version
 		//m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-
 	}
 
 	Application::~Application()
