@@ -53,7 +53,7 @@ project "Hazel"
 
 	filter "system:windows"
 		cppdialect "C++17"
-		staticruntime "On" 
+		--staticruntime "On" -- this causes runtime problems (video 13 @22:58) read comments (messes up the buildoptions)
 		systemversion "latest"
 
 
@@ -71,14 +71,17 @@ project "Hazel"
 
 	filter "configurations:Debug"
 		defines "HZ_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "HZ_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "HZ_DIST"
+		buildoptions "/MD"
 		optimize "On"
 
 project "Sandbox"
@@ -113,7 +116,7 @@ project "Sandbox"
 
 	filter "system:windows"
 		cppdialect "C++17"
-		staticruntime "On" 
+		--staticruntime "On"  -- this causes runtime problems (video 13 @22:58) read comments (messes up the buildoptions)
 		systemversion "latest"
 
 		defines 
