@@ -22,9 +22,9 @@ namespace Hazel {
 		s_Instance = this;
 		
 		m_Window = std::unique_ptr<Window>(Window::Create());
+		m_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));
 		// the long version
 		//m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
-		m_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));
 	}
 
 	Application::~Application()
@@ -69,6 +69,12 @@ namespace Hazel {
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
 			}
+			auto [x, y] = Input::GetMousePosition();
+			
+			// testing input
+			//HZ_CORE_TRACE("mouse pos {0}, {1}", x, y);
+			//HZ_CORE_TRACE("is key pressed {0}", Input::IsKeyPressed(32));  // spacebar
+			//HZ_CORE_TRACE("is mouse button 0 pressed {0}", Input::IsMouseButtonPressed(0) );  // left click
 
 			m_Window->OnUpdate();
 		}
