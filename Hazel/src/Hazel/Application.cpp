@@ -73,7 +73,7 @@ namespace Hazel {
 			
 			// testing input
 			//HZ_CORE_TRACE("mouse pos {0}, {1}", x, y);
-			//HZ_CORE_TRACE("is key pressed {0}", Input::IsKeyPressed(32));  // spacebar
+			//HZ_CORE_TRACE("is key pressed {0}", Input::IsKeyPressed(HZ_KEY_SPACE));  // spacebar
 			//HZ_CORE_TRACE("is mouse button 0 pressed {0}", Input::IsMouseButtonPressed(0) );  // left click
 
 			m_Window->OnUpdate();
