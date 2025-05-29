@@ -25,6 +25,9 @@ namespace Hazel {
 		m_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));
 		// the long version
 		//m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+
+		m_ImGuiLayer = new ImGuiLayer();  // ownership of the layer gets transferred to the Layer stack (which handles deleting it).
+		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
@@ -69,9 +72,15 @@ namespace Hazel {
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
 			}
-			auto [x, y] = Input::GetMousePosition();
-			
+
+			m_ImGuiLayer->Begin();
+			for (Layer* layer : m_LayerStack) {
+				layer->OnImGuiRender();
+			}
+			m_ImGuiLayer->End();
+
 			// testing input
+			//auto [x, y] = Input::GetMousePosition();			
 			//HZ_CORE_TRACE("mouse pos {0}, {1}", x, y);
 			//HZ_CORE_TRACE("is key pressed {0}", Input::IsKeyPressed(HZ_KEY_SPACE));  // spacebar
 			//HZ_CORE_TRACE("is mouse button 0 pressed {0}", Input::IsMouseButtonPressed(0) );  // left click

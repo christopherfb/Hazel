@@ -25,7 +25,7 @@ public:
 		: Layer("Example") {
 
 		// testing (to be removed)
-		auto cam = camera(5.0f, { 0.0f, 0.5f });
+		//auto cam = camera(5.0f, { 0.0f, 0.5f });
 
 	}
 
@@ -56,7 +56,6 @@ class Sandbox : public Hazel::Application
 public:
 	Sandbox() {
 		PushLayer(new ExampleLayer());
-		PushOverlay(new Hazel::ImGuiLayer());
 	}
 
 	~Sandbox() {
