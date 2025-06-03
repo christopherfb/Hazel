@@ -1,6 +1,7 @@
 
 #include <Hazel.h>
 
+#include "imgui/imgui.h"
 
 // sample code from: https://glm.g-truc.net/0.9.9/index.html just to show that the camera works.
 #include <glm/vec3.hpp> // glm::vec3
@@ -34,6 +35,12 @@ public:
 		if (Hazel::Input::IsKeyPressed(HZ_KEY_TAB)) {
 			HZ_TRACE("Tab is pressed (poll)");
 		}
+	}
+
+	virtual void OnImGuiRender() override {
+		//ImGui::Begin("Test");
+		//ImGui::Text("Hello world");
+		//ImGui::End();
 	}
 
 	void OnEvent(Hazel::Event& event) override

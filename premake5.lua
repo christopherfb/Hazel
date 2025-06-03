@@ -25,8 +25,10 @@ include "Hazel/vendor/ImGui"
 
 project "Hazel"
 	location "Hazel"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 	buildoptions { "/utf-8"}
 
 	postbuildmessage "COMPLETED %{prj.name} build!"
@@ -60,11 +62,10 @@ project "Hazel"
 		"Glad",
 		"ImGui",
 		"opengl32.lib"
-	}
-	
+	}	
 
 	filter "system:windows"
-		cppdialect "C++17"
+
 		--staticruntime "On" -- this causes runtime problems (video 13 @22:58) read comments (messes up the buildoptions)
 		systemversion "latest"
 
@@ -76,31 +77,30 @@ project "Hazel"
 			"GLFW_INCLUDE_NONE"
 		}
 
-		postbuildcommands
-		{		
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
-		}
-
-
 	filter "configurations:Debug"
 		defines "HZ_DEBUG"
-		buildoptions "/MDd"
-		symbols "On"
+		--buildoptions "/MDd"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "HZ_RELEASE"
-		buildoptions "/MD"
-		optimize "On"
+		--buildoptions "/MD"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "HZ_DIST"
-		buildoptions "/MD"
-		optimize "On"
+		--buildoptions "/MD"
+		optimize "on"
+
+
+
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 	buildoptions { "/utf-8"}
 
 
@@ -120,7 +120,8 @@ project "Sandbox"
 	includedirs {
 		"Hazel/vendor/spdlog/include",
 		"Hazel/src",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"Hazel/vendor"
 	}
 
 	links
@@ -129,7 +130,7 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
+
 		--staticruntime "On"  -- this causes runtime problems (video 13 @22:58) read comments (messes up the buildoptions)
 		systemversion "latest"
 
@@ -141,12 +142,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "HZ_DEBUG"
-		symbols "On"
+		runtime "Debug"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "HZ_RELEASE"
-		optimize "On"
+		runtime "Release"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "HZ_DIST"
-		optimize "On"
+		runtime "Release"
+		optimize "on"
