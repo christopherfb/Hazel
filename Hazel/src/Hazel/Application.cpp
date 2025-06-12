@@ -4,11 +4,10 @@
 
 
 // #include "Hazel/Log.h" // now in pch
-
 //#include <GLFW/glfw3.h>
+//#include <glad/glad.h>  //  Video:14 @ 19:38 explains this.
 
-#include <glad/glad.h>  //  Video:14 @ 19:38 explains this.
-
+#include "Hazel/Renderer/Renderer.h"
 
 namespace Hazel {
 
@@ -16,27 +15,6 @@ namespace Hazel {
 
 	Application* Application::s_Instance = nullptr;
 
-	static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type) {
-		switch (type)
-		{
-			case Hazel::ShaderDataType::None:	
-			case Hazel::ShaderDataType::Float:	
-			case Hazel::ShaderDataType::Float2:	
-			case Hazel::ShaderDataType::Float3:	
-			case Hazel::ShaderDataType::Float4:	
-			case Hazel::ShaderDataType::Mat3:	
-			case Hazel::ShaderDataType::Mat4:	return GL_FLOAT; break;
-
-			case Hazel::ShaderDataType::Int:	
-			case Hazel::ShaderDataType::Int2:	
-			case Hazel::ShaderDataType::Int3:	
-			case Hazel::ShaderDataType::Int4:	return GL_INT;	break;
-
-			case Hazel::ShaderDataType::Bool:	return GL_BOOL;	break;
-		}
-		HZ_CORE_ASSERT(false, "Unknown ShaderDataType!");
-		return 0;
-	}
 
 	Application::Application()
 	{
@@ -199,18 +177,33 @@ namespace Hazel {
 	{		
 		while (m_Running) 
 		{
-			glClearColor(0.1f, 0.1f, 0.1f, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			//glClearColor(0.1f, 0.1f, 0.1f, 1);
+			//glClear(GL_COLOR_BUFFER_BIT);
 
+			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+			RenderCommand::Clear();
+
+
+			Renderer::BeginScene();
 
 			m_BlueShader->Bind();
+			Renderer::Submit(m_SquareVA);
+
+			m_Shader->Bind();
+			Renderer::Submit(m_VertexArray);
+
+
+			Renderer::EndScene();
+
+
+			/*m_BlueShader->Bind();
 			m_SquareVA->Bind();
 			glDrawElements(GL_TRIANGLES, m_SquareVA->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 			
 
 			m_Shader->Bind();
 			m_VertexArray->Bind();
-			glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);*/
 
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
