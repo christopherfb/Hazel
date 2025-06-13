@@ -16,6 +16,17 @@
 
 #include "Hazel/Log.h"
 
+// -- Renderer related ----------------------
+#include "Hazel/Renderer/Renderer.h"
+#include "Hazel/Renderer/RenderCommand.h"
+
+#include "Hazel/Renderer/Buffer.h"
+#include "Hazel/Renderer/Shader.h"
+#include "Hazel/Renderer/VertexArray.h"
+
+#include "Hazel/Renderer/OrthographicCamera.h"
+// -----------------------------------------
+
 
 #ifdef HZ_PLATFORM_WINDOWS
 	#include <Windows.h>
