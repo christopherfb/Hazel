@@ -1,6 +1,7 @@
 #include "hzpch.h"
 #include "Shader.h"
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Hazel {
 
@@ -132,6 +133,17 @@ namespace Hazel {
 	void Hazel::Shader::Unbind() const
 	{
 		glUseProgram(0);
+	}
+
+	void Shader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
+	{
+		GLint location = glGetUniformLocation(m_RendererID, name.c_str() );
+		// if this comes back with -1, it means it doesn't exist.
+
+		// 1 is the # of matrices we're using
+		// GL_FALSE means we're not using row major order (we're using col major)
+		// lastly: a pointer to the value
+		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix) );  
 	}
 
 }
