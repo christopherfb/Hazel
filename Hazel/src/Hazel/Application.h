@@ -5,6 +5,8 @@
 #include "LayerStack.h"
 #include "Events/Event.h"
 #include "Events/ApplicationEvent.h"
+#include "Hazel/Core/Timestep.h"
+
 #include "Input.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
 
@@ -34,7 +36,7 @@ namespace Hazel {
 
 		bool m_Running = true;
 		LayerStack m_LayerStack;
-
+		float m_LastFrameTime = 0.0f;
 
 	private:
 		static Application* s_Instance;

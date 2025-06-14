@@ -8,6 +8,7 @@
 //#include <glad/glad.h>  //  Video:14 @ 19:38 explains this.
 
 #include "Hazel/Renderer/Renderer.h"
+#include <GLFW/glfw3.h>
 
 
 namespace Hazel {
@@ -24,9 +25,10 @@ namespace Hazel {
 		s_Instance = this;
 		
 		m_Window = std::unique_ptr<Window>(Window::Create());
-		m_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));
+		m_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));		
 		// the long version
 		//m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+		//m_Window->SetVSync(false);
 
 		m_ImGuiLayer = new ImGuiLayer();  // ownership of the layer gets transferred to the Layer stack (which handles deleting it).
 		PushOverlay(m_ImGuiLayer);
@@ -67,9 +69,12 @@ namespace Hazel {
 	{		
 		while (m_Running) 
 		{
+			float time = (float)glfwGetTime();  // replace with Platform::GetTime() to do this in a platform independent way.
+			Timestep timestep = time - m_LastFrameTime;
+			m_LastFrameTime = time;
 
 			for (Layer* layer : m_LayerStack) {
-				layer->OnUpdate();
+				layer->OnUpdate(timestep);
 			}
 
 			m_ImGuiLayer->Begin();
