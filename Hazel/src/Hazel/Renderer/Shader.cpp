@@ -135,6 +135,17 @@ namespace Hazel {
 		glUseProgram(0);
 	}
 
+	void Shader::UploadUniformFloat4(const std::string& name, const glm::vec4& values)
+	{
+		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		// if this comes back with -1, it means it doesn't exist.
+
+		// 1 is the # of matrices we're using
+		// GL_FALSE means we're not using row major order (we're using col major)
+		// lastly: a pointer to the value
+		glUniform4f(location, values.x, values.y, values.z, values.w);
+	}
+
 	void Shader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str() );
