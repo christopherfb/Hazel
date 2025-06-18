@@ -125,6 +125,9 @@ public:
 		m_SquareVA->SetIndexBuffer(squareIB);
 
 
+
+
+
 		///////////////////////
 		std::string flatColorShaderVertexSrc = R"(
 			#version 330 core
@@ -159,7 +162,7 @@ public:
 		m_FlatColorShader.reset(Hazel::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
 
 
-		// Texture shader ///////////////////// 
+/*		// Texture shader ///////////////////// 
 		std::string textureShaderVertexSrc = R"(
 			#version 330 core
 			layout(location = 0) in vec3 a_Position;
@@ -189,8 +192,10 @@ public:
 				color = texture(u_Texture, v_TexCoord);				
 			}
 		)";
-
-		m_TextureShader.reset(Hazel::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
+*/
+		m_TextureShader.reset(Hazel::Shader::Create("assets/shaders/Texture.glsl"));
+		
+		//m_TextureShader.reset(Hazel::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
 
 		m_Texture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
 		m_ChernoLogoTexture = Hazel::Texture2D::Create("assets/textures/ChernoLogo.png");
