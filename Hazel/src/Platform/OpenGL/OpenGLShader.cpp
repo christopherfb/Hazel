@@ -22,14 +22,22 @@ namespace Hazel {
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
 
+		// Extract name from filepath
+		// assets/shaders/Textures.shader.glsl
+		auto lastSlash = filepath.find_last_of("/\\");
+		int nameIndexStart = lastSlash == std::string::npos ? 0 : lastSlash+1;
+		auto lastDot = filepath.rfind('.');
+		auto nameCharCount = lastDot == std::string::npos ? filepath.size() - nameIndexStart : lastDot - nameIndexStart;
+		m_Name = filepath.substr(nameIndexStart, nameCharCount);
 	}
 
-	Hazel::OpenGLShader::OpenGLShader(const std::string& vertexSrc, const std::string& fragmentSrc)
+	Hazel::OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
+		: m_Name(name)
 	{
 		std::unordered_map<GLenum, std::string> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
 		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
-		Compile(sources);
+		Compile(sources);		
 	}
 
 
@@ -37,7 +45,7 @@ namespace Hazel {
 	{
 		std::string result;
 
-		std::ifstream in(filepath, std::ios::in, std::ios::binary);
+		std::ifstream in(filepath, std::ios::in | std::ios::binary);
 		if (in) {
 			in.seekg(0, std::ios::end);			// go to the end of the file (put file ptr at end)
 			result.resize(in.tellg());			// set the string to the size of the file (since the file ptr is at the end)
@@ -77,8 +85,10 @@ namespace Hazel {
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		GLuint program = glCreateProgram();
-		std::vector<GLenum> glShaderIDs(shaderSources.size());
-		
+		HZ_CORE_ASSERT(shaderSources.size() <= 2, "We only support 2 shaders for now.")
+		std::array<GLenum, 2> glShaderIDs;
+		//glShaderIDs.reserve(shaderSources.size());
+		int glShaderIDIndex = 0;
 		for (auto& kv : shaderSources){
 			GLenum type = kv.first;
 			const std::string& source = kv.second;
@@ -116,7 +126,8 @@ namespace Hazel {
 				break;
 			}
 			glAttachShader(program, shader);
-			glShaderIDs.push_back(shader);
+			glShaderIDs[glShaderIDIndex++] = shader;
+			//glShaderIDs.push_back(shader);
 		}	
 
 		// Link our program
