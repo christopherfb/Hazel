@@ -6,7 +6,7 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "backends/imgui_impl_glfw.h"
 
-#include "Hazel/Application.h"
+#include "Hazel/Core/Application.h"
 //#include "Hazel/Core.h"  // this gets included in Application.h, and used for the HZ_BIND_EVENT_FN macro
 //#include "Hazel/Events/Event.h"
 
