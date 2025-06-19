@@ -245,15 +245,7 @@ public:
 
 	void OnEvent(Hazel::Event& e) override
 	{
-		m_CameraController.OnEvent(e);
-		//if (event.GetEventType() == Hazel::EventType::KeyPressed) {
-		//	Hazel::KeyPressedEvent& e = (Hazel::KeyPressedEvent&)event;
-		//	if (e.GetKeyCode() == HZ_KEY_TAB) {
-		//		HZ_TRACE("Tab is pressed (event)");
-		//	}
-
-		//	HZ_TRACE("{0} : {1}", e.GetKeyCode(), (char)e.GetKeyCode());
-		//}
+		m_CameraController.OnEvent(e);		
 	}	
 	
 
