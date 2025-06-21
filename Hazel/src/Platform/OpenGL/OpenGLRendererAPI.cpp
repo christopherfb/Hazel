@@ -7,6 +7,8 @@ void Hazel::OpenGLRendererAPI::Init()
 	// make it so that transparency for png files works (on or off)
 	glEnable(GL_BLEND);	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Hazel::OpenGLRendererAPI::SetClearColor(const glm::vec4& color)
