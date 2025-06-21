@@ -4,7 +4,9 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "RenderCommand.h"
-#include "Platform/OpenGL/OpenGLShader.h"
+//#include "Platform/OpenGL/OpenGLShader.h"
+#include <glm/gtc/matrix_transform.hpp>
+
 
 namespace Hazel {
 
@@ -55,9 +57,9 @@ namespace Hazel {
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
-		std::dynamic_pointer_cast<OpenGLShader>(s_Data->FlatColorShader)->Bind();
-		std::dynamic_pointer_cast<OpenGLShader>(s_Data->FlatColorShader)->UploadUniformMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
-		std::dynamic_pointer_cast<OpenGLShader>(s_Data->FlatColorShader)->UploadUniformMat4("u_Transform", glm::mat4(1.0f));
+		s_Data->FlatColorShader->Bind();
+		s_Data->FlatColorShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
+		//s_Data->FlatColorShader->SetMat4("u_Transform", glm::mat4(1.0f));
 	}
 
 	void Renderer2D::EndScene()
@@ -73,8 +75,13 @@ namespace Hazel {
 	{
 		// don't need to bind if already bound - but video 51 said it was possible to get to that state
 		// Binding 2x wont' hurt, but maybe track with a bool to optimize?
-		std::dynamic_pointer_cast<OpenGLShader>(s_Data->FlatColorShader)->Bind();
-		std::dynamic_pointer_cast<OpenGLShader>(s_Data->FlatColorShader)->UploadUniformFloat4("u_Color", color);
+		s_Data->FlatColorShader->Bind();
+		s_Data->FlatColorShader->SetFloat4("u_Color", color);
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *  /* TODO:  * rotation  */
+			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+
+		s_Data->FlatColorShader->SetMat4("u_Transform", transform);
 
 		s_Data->QuadVertexArray->Bind();
 		RenderCommand::DrawIndexed(s_Data->QuadVertexArray);
