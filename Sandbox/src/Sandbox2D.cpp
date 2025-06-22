@@ -4,7 +4,39 @@
 #include <glm/gtc/type_ptr.hpp>
 //#include "Platform/OpenGL/OpenGLShader.h"
 
+#include <chrono>  // for timer
 
+template<typename Fn>
+class Timer
+{
+public:
+	Timer(const char* name, Fn&& func)
+	: m_Name(name), m_Stopped(false), m_Func(func)
+	{
+		m_StartTimepoint = std::chrono::high_resolution_clock::now();
+	}
+
+	~Timer() {
+		if (!m_Stopped) { Stop(); }
+	}
+
+	void Stop() {
+		auto endTimepoint = std::chrono::high_resolution_clock::now();
+		long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();
+		long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();
+		m_Stopped = true;
+		float duration = (end - start) * 0.001f;
+		//std::cout << m_Name << " Duration: " << duration << " ms" <<std::endl;
+		m_Func({ m_Name, duration });
+	}
+private:
+	const char* m_Name;
+	Fn m_Func;
+	std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
+	bool m_Stopped;
+};
+
+#define PROFILE_SCOPE(name) Timer timer##__LINE__(name, [&](ProfileResult profileResult) { m_ProfileResults.push_back(profileResult); })
 
 Sandbox2D::Sandbox2D() 
 	: Layer("Sandbox2D")
@@ -14,35 +46,7 @@ Sandbox2D::Sandbox2D()
 
 void Sandbox2D::OnAttach()
 {
-	//// DRAW A SQUARE ////////////////////////////////////////////
-	//m_SquareVA = Hazel::VertexArray::Create();
-
-	//float squareVertices[3 * 4] = {
-	//	-0.5f, -0.5f, 0.0f,
-	//	0.5f, -0.5f, 0.0f ,
-	//	0.5f,  0.5f, 0.0f , 
-	//	-0.5f,  0.5f, 0.0f
-	//};
-	//Hazel::Ref<Hazel::VertexBuffer> squareVB;
-	//squareVB.reset(Hazel::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
-
-	//Hazel::BufferLayout squareVBLayout = {
-	//	{Hazel::ShaderDataType::Float3, "a_Position" },
-
-	//};
-	//squareVB->SetLayout(squareVBLayout);
-	//m_SquareVA->AddVertexBuffer(squareVB);
-
-	//uint32_t squareIndices[6] = { 0,1,2,2,3,0 };
-
-	//Hazel::Ref<Hazel::IndexBuffer> squareIB;
-	//squareIB.reset(Hazel::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
-	//m_SquareVA->SetIndexBuffer(squareIB);
-
-	//m_FlatColorShader = Hazel::Shader::Create("assets/shaders/FlatColor.glsl");
-
 	m_CheckerboardTexture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
-
 }
 
 
@@ -52,27 +56,52 @@ void Sandbox2D::OnDetach()
 
 void Sandbox2D::OnUpdate(Hazel::Timestep ts)
 {
-	m_CameraController.OnUpdate(ts);
+	// moved this to a #define
+	//Timer timer("Sandbox2D::OnUpdate", [&](auto profileResult) { m_ProfileResults.push_back(profileResult); });
+	PROFILE_SCOPE("Sandbox2D::OnUpdate");
+
+	{
+		PROFILE_SCOPE("CameraController::OnUpdate");
+		m_CameraController.OnUpdate(ts);
+
+	}
 
 	//// Render
-	Hazel::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
-	Hazel::RenderCommand::Clear();
+	{
+		PROFILE_SCOPE("Render Prep::OnUpdate");
+		Hazel::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+		Hazel::RenderCommand::Clear();
+	}
 
-	Hazel::Renderer2D::BeginScene(m_CameraController.GetCamera());
+	{
+		PROFILE_SCOPE("Renderer Draw::OnUpdate");
+		// the UploadUniformMat4() call buried in BeginScene() takes a lot of time! (15ms)
+		Hazel::Renderer2D::BeginScene(m_CameraController.GetCamera());
 
-	Hazel::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });
-	Hazel::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, { 0.2f, 0.2f, 0.8f, 1.0f });
+		/*Hazel::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });
+		Hazel::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, { 0.2f, 0.2f, 0.8f, 1.0f });
 
-	Hazel::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f}, { 10.0f, 10.0f }, m_CheckerboardTexture);
-	
-	
-	Hazel::Renderer2D::EndScene();
+		Hazel::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, m_CheckerboardTexture);*/
+		//
+
+		Hazel::Renderer2D::EndScene();
+	}
 }
 
 void Sandbox2D::OnImGuiRender()
 {
 	ImGui::Begin("Settings");
 	ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
+
+
+
+	for (auto& result : m_ProfileResults) {
+		char label[50];
+		strcpy(label, "  %.3fms ");
+		strcat(label, result.Name);
+		ImGui::Text(label, result.Time);
+	}
+	m_ProfileResults.clear();
 	ImGui::End();
 }
 

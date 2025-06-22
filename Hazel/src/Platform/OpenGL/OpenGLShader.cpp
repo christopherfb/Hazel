@@ -243,7 +243,7 @@ namespace Hazel {
 
 	void OpenGLShader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_RendererID, name.c_str());  // this takes 15ms??
 		// if this comes back with -1, it means it doesn't exist.
 
 		// 1 is the # of matrices we're using

@@ -67,9 +67,6 @@ namespace Hazel {
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
-		//s_Data->FlatColorShader->Bind();
-		//s_Data->FlatColorShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
-		
 		s_Data->TextureShader->Bind();
 		s_Data->TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
 	}
