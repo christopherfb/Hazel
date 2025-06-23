@@ -11,6 +11,8 @@ namespace Hazel {
 	}
 	void OpenGLContext::Init()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		glfwMakeContextCurrent(m_WindowHandle);
 
 		// initialize Glad stuff
@@ -26,6 +28,8 @@ namespace Hazel {
 	}
 	void OpenGLContext::SwapBuffers()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		glfwSwapBuffers(m_WindowHandle);
 	}
 }
