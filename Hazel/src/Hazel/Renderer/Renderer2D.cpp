@@ -180,8 +180,8 @@ namespace Hazel {
 		const float textureIndex = 0.0f;  // white texture
 		
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
-		if (p.rotationInDeg != 0.0f) {
-			transform *= glm::rotate(glm::mat4(1.0f), glm::radians(p.rotationInDeg), { 0.0f, 0.0f, 1.0f });
+		if (p.rotationInRad != 0.0f) {
+			transform *= glm::rotate(glm::mat4(1.0f), p.rotationInRad, { 0.0f, 0.0f, 1.0f });
 		}
 		transform *= glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
@@ -242,8 +242,8 @@ namespace Hazel {
 		}
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position);
-		if (p.rotationInDeg != 0.0f) {
-			transform *= glm::rotate(glm::mat4(1.0f), glm::radians(p.rotationInDeg), { 0.0f, 0.0f, 1.0f });
+		if (p.rotationInRad != 0.0f) {
+			transform *= glm::rotate(glm::mat4(1.0f), p.rotationInRad, { 0.0f, 0.0f, 1.0f });
 		}
 		transform *= glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 		

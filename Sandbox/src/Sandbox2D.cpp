@@ -5,9 +5,9 @@
 
 
 
-Sandbox2D::Sandbox2D() 
+Sandbox2D::Sandbox2D()
 	: Layer("Sandbox2D")
-	, m_CameraController(1280.0f / 720.0f)  // 16:9
+	, m_CameraController(1280.0f / 720.0f) // 16:9
 {
 }
 
@@ -15,6 +15,15 @@ void Sandbox2D::OnAttach()
 {
 	HZ_PROFILE_FUNCTION();
 	m_CheckerboardTexture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
+
+	// Init here
+	m_Particle.ColorBegin = { 254 / 255.0f, 212 / 255.0f, 123 / 255.0f, 1.0f };
+	m_Particle.ColorEnd = { 254 / 255.0f, 109 / 255.0f, 41 / 255.0f, 1.0f };
+	m_Particle.SizeBegin = 0.5f, m_Particle.SizeVariation = 0.3f, m_Particle.SizeEnd = 0.0f;
+	m_Particle.LifeTime = 5.0f;
+	m_Particle.Velocity = { 0.0f, 0.0f };
+	m_Particle.VelocityVariation = { 3.0f, 1.0f };
+	m_Particle.Position = { 0.0f, 0.0f };
 }
 
 
@@ -51,11 +60,11 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
 
 		// red box
 		Hazel::Renderer2D::DrawQuadDefaultParams p;
-		p.rotationInDeg = -45.0f;
+		p.rotationInRad = glm::radians( -45.0f);
 		p.tint = { 0.8f, 0.2f, 0.3f, 1.0f };
 		Hazel::Renderer2D::DrawQuad({ 1.0f, 0.0f }, { 0.8f, 0.8f }, p);
 
-		p.rotationInDeg = 0.0f;
+		p.rotationInRad = glm::radians(0.0f);
 		p.tint = { 0.8f, 0.2f, 0.3f, 1.0f };
 		Hazel::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, p);
 
@@ -73,7 +82,7 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
 		// small checkerboard
 		Hazel::Renderer2D::DrawQuadDefaultParams p3;
 		p3.tilingFactor = 20.0f;
-		p3.rotationInDeg = rotation;
+		p3.rotationInRad = glm::radians(rotation);
 		Hazel::Renderer2D::DrawQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_CheckerboardTexture, p3);
 		
 
@@ -93,6 +102,25 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
 		Hazel::Renderer2D::EndScene();
 
 	}
+
+	if (Hazel::Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_LEFT))
+	{
+		auto [x, y] = Hazel::Input::GetMousePosition();
+		auto width = Hazel::Application::Get().GetWindow().GetWidth();
+		auto height = Hazel::Application::Get().GetWindow().GetHeight();
+
+		auto bounds = m_CameraController.GetBounds();
+		auto pos = m_CameraController.GetCamera().GetPosition();
+		x = (x / width) * bounds.GetWidth() - bounds.GetWidth() * 0.5f;
+		y = bounds.GetHeight() * 0.5f - (y / height) * bounds.GetHeight();
+		m_Particle.Position = { x + pos.x, y + pos.y };
+		const int particlesPerTick = 50;
+		for (int i = 0; i < particlesPerTick; i++)
+			m_ParticleSystem.Emit(m_Particle);
+	}
+
+	m_ParticleSystem.OnUpdate(ts);
+	m_ParticleSystem.OnRender(m_CameraController.GetCamera());
 }
 
 void Sandbox2D::OnImGuiRender()

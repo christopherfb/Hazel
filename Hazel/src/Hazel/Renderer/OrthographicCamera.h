@@ -4,6 +4,7 @@
 
 namespace Hazel {
 
+
 	class OrthographicCamera {
 
 	public:
