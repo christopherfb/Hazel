@@ -82,19 +82,24 @@ namespace Hazel {
 	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
 		HZ_PROFILE_FUNCTION(); 
-		glBindTextureUnit(slot, m_RendererID);
+		
+		// use for OpenGL 4.5+ 
+		//glBindTextureUnit(slot, m_RendererID);
+		 	
+		// use for OpenGL < version 4.5
+		glActiveTexture(GL_TEXTURE0 + slot);
+		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 	}
-
 
 
 	void OpenGLTexture2D::InitCommonOpenGLSettings()
 	{
 		// Video 42: Textures didn't work for me - instead of displaying a texture on the square, it was black.
-// There was a comment stating:
-//  glTexStorage2D() is only for 4.2 + , glTextureStorage2D() is only for 4.5 +
-// 
-// For people with old PC which doesn't support OpenGL 4.2+:
-// -- old computers (as shown in video comment section - with a modification from chatGPT to solve blur issue)
+		// There was a comment stating:
+		//  glTexStorage2D() is only for 4.2 + , glTextureStorage2D() is only for 4.5 +
+		// 
+		// use for OpenGL < version 4.5
+		// -- old computers (as shown in video comment section - with a modification from chatGPT to solve blur issue)
 		glGenTextures(1, &m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
 		// The result was a blurry image - chatGPT recommended replacing m_RendererID with GL_TEXTURE_2D, which worked:
@@ -103,21 +108,6 @@ namespace Hazel {
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		// not sure if I need this anymore (video removed SubImage2D code (below) and this was
-		// what I used instead of that to make things work earlier.
-//		glTexImage2D(GL_TEXTURE_2D, 0, m_DataFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
-//		glGenerateMipmap(GL_TEXTURE_2D);
-		// -- end of OpenGL < 4.2+
-
-
-		// -- new computers that support 4.5+ (as shown in video)
-		//glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-		//glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
-		//glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		//glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		//glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
-		// -- end of for 4.5+
 	}
 
 }

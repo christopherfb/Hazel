@@ -51,11 +51,13 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
 
 		Hazel::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, { 0.2f, 0.2f, 0.8f, 1.0f });
 
-		//Hazel::DrawQuadDefaultParams p2;
-		//p2.rotation = glm::radians(-45.0f);
-		//p2.tilingFactor = 10.0f;
-		//p2.tint = glm::vec4(1.0, 0.8, 0.8, 1.0);
-		//Hazel::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, m_CheckerboardTexture, p2);
+		Hazel::DrawQuadDefaultParams p2;
+		p2.rotation = glm::radians(-45.0f);
+		p2.tilingFactor = 10.0f;
+		p2.tint = glm::vec4(1.0, 0.8, 0.8, 1.0);
+		Hazel::Renderer2D::DrawQuad({ -5.0f, -5.0f, -0.1f }, { 10.0f, 10.0f }, m_CheckerboardTexture, p2);
+		p2.tilingFactor = 20.0f;
+		Hazel::Renderer2D::DrawQuad({ -0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f }, m_CheckerboardTexture, p2);
 		
 
 		Hazel::Renderer2D::EndScene();
