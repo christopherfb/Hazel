@@ -223,7 +223,7 @@ namespace Hazel {
 		for (int32_t i = 0; i < 4; i++) {
 			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
 			s_Data.QuadVertexBufferPtr->Color = p.tint;
-			s_Data.QuadVertexBufferPtr->TexCoord = s_Data.TextureCoordinates[i]; // { 0.0f, 0.0f };
+			s_Data.QuadVertexBufferPtr->TexCoord = s_Data.TextureCoordinates[i]; 
 			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
 			s_Data.QuadVertexBufferPtr->TilingFactor = p.tilingFactor;
 			s_Data.QuadVertexBufferPtr++;
