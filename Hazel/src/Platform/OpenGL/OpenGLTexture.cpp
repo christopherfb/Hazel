@@ -2,6 +2,7 @@
 #include "OpenGLTexture.h"
 #include "stb_image.h"
 
+#define USING_OPENGL_V4_5_OR_HIGHER 
 
 namespace Hazel {
 	OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height)
@@ -84,11 +85,14 @@ namespace Hazel {
 		HZ_PROFILE_FUNCTION(); 
 		
 		// use for OpenGL 4.5+ 
-		//glBindTextureUnit(slot, m_RendererID);
-		 	
-		// use for OpenGL < version 4.5
+#ifdef USING_OPENGL_V4_5_OR_HIGHER
+		glBindTextureUnit(slot, m_RendererID);
+#else		 	
+		// use for < OpenGL 4.5
 		glActiveTexture(GL_TEXTURE0 + slot);
 		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+#endif
+
 	}
 
 
