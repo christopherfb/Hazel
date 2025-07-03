@@ -11,7 +11,7 @@ namespace Hazel {
 	public:
 
 		struct DrawQuadDefaultParams {
-			glm::vec4& tint = glm::vec4(1.0f);
+			glm::vec4 tint = glm::vec4(1.0f);
 			float rotationInRad = 0.0f;
 			float tilingFactor = 1.0f;
 		};
