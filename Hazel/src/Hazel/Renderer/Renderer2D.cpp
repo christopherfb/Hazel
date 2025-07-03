@@ -214,6 +214,19 @@ namespace Hazel {
 			FlushAndReset();
 		}
 
+		constexpr float x = 7, y = 6;
+		constexpr float sheetWidth = 2560.0f;
+		constexpr float sheetHeight = 1664.0f;
+		constexpr float spriteWidth = 128.0f;
+		constexpr float spriteHeight = 128.0f;
+
+		constexpr glm::vec2 textureCoords[] = { 
+			 { (x * spriteWidth) / sheetWidth,		(y * spriteHeight)/sheetHeight }
+			,{ ((x+1) * spriteWidth) / sheetWidth,	(y * spriteHeight)/sheetHeight }
+			,{ ((x+1) * spriteWidth) / sheetWidth,	((y+1) * spriteHeight)/sheetHeight }
+			,{ (x * spriteWidth) / sheetWidth,		((y+1) * spriteHeight)/sheetHeight }
+		};
+
 		// Try to find texture slot
 		float textureIndex = 0.0f;
 		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; i++)    // alt: if (*s_Data.TextureSlots[i] == *texture)
@@ -251,7 +264,7 @@ namespace Hazel {
 		for (int32_t i = 0; i < 4; i++) {
 			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
 			s_Data.QuadVertexBufferPtr->Color = p.tint;
-			s_Data.QuadVertexBufferPtr->TexCoord = s_Data.TextureCoordinates[i]; 
+			s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i]; //s_Data.TextureCoordinates[i]; 
 			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
 			s_Data.QuadVertexBufferPtr->TilingFactor = p.tilingFactor;
 			s_Data.QuadVertexBufferPtr++;
