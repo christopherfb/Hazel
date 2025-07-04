@@ -1,6 +1,7 @@
 #pragma once
 #include "OrthographicCamera.h"
 #include "Texture.h"
+#include "Hazel/Renderer/SubTexture2D.h"
 
 namespace Hazel {
 
@@ -30,6 +31,9 @@ namespace Hazel {
 
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, const DrawQuadDefaultParams& p = drawQuadDefaultParams);
 		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, const DrawQuadDefaultParams& p = drawQuadDefaultParams);
+	
+		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture, const DrawQuadDefaultParams& p = drawQuadDefaultParams);
+		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture, const DrawQuadDefaultParams& p = drawQuadDefaultParams);
 
 		static const DrawQuadDefaultParams drawQuadDefaultParams;
 
