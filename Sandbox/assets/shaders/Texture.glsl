@@ -40,7 +40,9 @@ uniform sampler2D u_Textures[32];
 
 void main()
 {
-	// TODO: u_TilingFactor
-	color = texture(u_Textures[int(v_TexIndex)], v_TexCoord * v_TilingFactor) * v_Color;				
+
+	// There was a video portion that explained that this line doens't work
+	// with AMD video cards, and gave a solution: video 70 @ 10:00 
+	color = texture(u_Textures[int(v_TexIndex)], v_TexCoord * v_TilingFactor) * v_Color;
 	//color = v_Color;
 }
