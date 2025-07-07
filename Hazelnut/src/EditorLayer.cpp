@@ -37,8 +37,9 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();
 
-
-		m_CameraController.OnUpdate(ts);
+		if (m_ViewportFocused) {
+			m_CameraController.OnUpdate(ts);
+		}
 
 
 
@@ -230,9 +231,16 @@ namespace Hazel {
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 			ImGui::Begin("Viewport");
+			//HZ_CORE_WARN("Focused: {0}", ImGui::IsWindowFocused());
+			//HZ_CORE_WARN("Hovered: {0}", ImGui::IsWindowHovered());
 
+			m_ViewportFocused = ImGui::IsWindowFocused();
+			m_ViewportHovered = ImGui::IsWindowHovered();
+			Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);
+		
+			
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-			HZ_WARN("Viewport size: {0}, {1}", viewportPanelSize.x, viewportPanelSize.y);
+			//HZ_WARN("Viewport size: {0}, {1}", viewportPanelSize.x, viewportPanelSize.y);
 
 			// if the viewport has changed size
 			if (m_ViewportSize.x != viewportPanelSize.x || m_ViewportSize.y != viewportPanelSize.y) {
