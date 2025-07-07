@@ -98,6 +98,8 @@ namespace Hazel {
 	}
 
 
+
+
 	void OpenGLTexture2D::InitCommonOpenGLSettings()
 	{
 		// Video 42: Textures didn't work for me - instead of displaying a texture on the square, it was black.
