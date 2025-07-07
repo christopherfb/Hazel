@@ -20,6 +20,8 @@ namespace Hazel {
 	public:
 		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
 
+		virtual ~Framebuffer() = default;
+
 		// This will likely be removed in the future because it doesn't make sense for a Framebuffer to be bound.
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
