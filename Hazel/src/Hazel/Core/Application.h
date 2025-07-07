@@ -18,7 +18,7 @@ namespace Hazel {
 
 		inline static Application& Get() { return *s_Instance; }
 
-		Application();
+		Application(const std::string& name = "Hazel App");
 		virtual ~Application();
 		void Run();
 		void OnEvent(Event& e);
@@ -34,7 +34,7 @@ namespace Hazel {
 		bool OnWindowResize(WindowResizeEvent& e);
 
 	private:
-		std::unique_ptr<Window> m_Window;
+		Scope<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
 
 		bool m_Running = true;

@@ -38,7 +38,6 @@ namespace Hazel {
 	template<typename T, typename ... Args>
 		constexpr Scope<T> CreateScope(Args&& ... args)
 	{
-		Add commentMore actions
 			return std::make_unique<T>(std::forward<Args>(args)...);
 	}
 

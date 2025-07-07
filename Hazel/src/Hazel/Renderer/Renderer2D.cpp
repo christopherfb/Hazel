@@ -210,6 +210,8 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();
 
+		HZ_CORE_ASSERT(texture, "Attempting to DrawQuad() with an empty texture!");
+
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices) {
 			FlushAndReset();
 		}
