@@ -19,3 +19,5 @@ Sandbox/HazelProfile-Shutdown.json
 Sandbox/HazelProfile-Startup.json
 Sandbox/imgui.ini
 Sandbox/imgui.ini
+Hazelnut/imgui.ini
+*.json
