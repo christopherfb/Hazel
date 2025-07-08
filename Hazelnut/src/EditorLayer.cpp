@@ -243,7 +243,9 @@ namespace Hazel {
 			//HZ_WARN("Viewport size: {0}, {1}", viewportPanelSize.x, viewportPanelSize.y);
 
 			// if the viewport has changed size
-			if (m_ViewportSize.x != viewportPanelSize.x || m_ViewportSize.y != viewportPanelSize.y) {
+			bool sizeChanged = m_ViewportSize.x != viewportPanelSize.x || m_ViewportSize.y != viewportPanelSize.y;
+			bool newSizeIsValid = viewportPanelSize.x > 0 && viewportPanelSize.y > 0;
+			if (sizeChanged && newSizeIsValid) {
 				m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 				m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 				m_CameraController.Resize(viewportPanelSize.x, viewportPanelSize.y);
