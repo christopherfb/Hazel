@@ -15,6 +15,7 @@ namespace Hazel {
 			glm::vec4 tint = glm::vec4(1.0f);
 			float rotationInRad = 0.0f;
 			float tilingFactor = 1.0f;
+			glm::mat4 transform = glm::mat4(1.0f);
 		};
 
 		static void Init();
@@ -35,6 +36,9 @@ namespace Hazel {
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture, const DrawQuadDefaultParams& p = drawQuadDefaultParams);
 		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture, const DrawQuadDefaultParams& p = drawQuadDefaultParams);
 
+		static void DrawQuad(const glm::mat4& transform, const DrawQuadDefaultParams& p = drawQuadDefaultParams);
+		static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, const DrawQuadDefaultParams& p = drawQuadDefaultParams);
+
 		static const DrawQuadDefaultParams drawQuadDefaultParams;
 
 
@@ -50,5 +54,9 @@ namespace Hazel {
 		
 	private:
 		static void FlushAndReset();
+
+		static float Renderer2D::GetTextureSlotIndex(const Ref<Texture2D>& texture);
+		static void LoopThroughSDataAndAssignValues(float textureIndex, const glm::mat4& transform, const glm::vec2* textureCoords, const DrawQuadDefaultParams& p);
+		static glm::mat4 Renderer2D::CalculateTransform(const glm::vec3& position, const glm::vec2& size, const DrawQuadDefaultParams& p);
 	};
 }
