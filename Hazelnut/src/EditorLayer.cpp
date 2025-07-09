@@ -25,6 +25,15 @@ namespace Hazel {
 
 		m_Framebuffer = Framebuffer::Create(fbSpec);
 
+		m_ActiveScene = CreateRef<Scene>();
+
+		auto square = m_ActiveScene->CreateEntity();
+
+		m_ActiveScene->Reg().emplace<TransformComponent>(square);
+		m_ActiveScene->Reg().emplace<SpriteRendererComponent>(square, glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
+
+		m_SquareEntity = square;
+
 	}
 
 
@@ -42,7 +51,6 @@ namespace Hazel {
 		}
 
 
-
 		//// Render
 		Renderer2D::ResetStats();
 
@@ -54,58 +62,59 @@ namespace Hazel {
 			RenderCommand::Clear();
 		}
 
-#if 1
 		{
-			static float rotation = 0.0f;
-			rotation += ts * 50.0f;
+			//static float rotation = 0.0f;
+			//rotation += ts * 50.0f;
 
 			HZ_PROFILE_SCOPE("Renderer Draw");
 			// the UploadUniformMat4() call buried in BeginScene() takes a lot of time! (15ms)
 			Renderer2D::BeginScene(m_CameraController.GetCamera());
 
+			// Update Scene
+			m_ActiveScene->OnUpdate(ts);
+
 			// red box
-			Renderer2D::DrawQuadDefaultParams p;
-			p.rotationInRad = glm::radians(-45.0f);
-			p.tint = { 0.8f, 0.2f, 0.3f, 1.0f };
-			Renderer2D::DrawQuad({ 1.0f, 0.0f }, { 0.8f, 0.8f }, p);
+			//Renderer2D::DrawQuadDefaultParams p;
+			//p.rotationInRad = glm::radians(-45.0f);
+			//p.tint = { 0.8f, 0.2f, 0.3f, 1.0f };
+			//Renderer2D::DrawQuad({ 1.0f, 0.0f }, { 0.8f, 0.8f }, p);
 
-			p.rotationInRad = glm::radians(0.0f);
-			p.tint = { 0.8f, 0.2f, 0.3f, 1.0f };
-			Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, p);
+			//p.rotationInRad = glm::radians(0.0f);
+			//p.tint = { 0.8f, 0.2f, 0.3f, 1.0f };
+			//Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, p);
 
-			// blue box
-			Renderer2D::DrawQuadDefaultParams p5;
-			p5.tint = { 0.2f, 0.2f, 0.8f, 1.0f };
-			Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, p5);
+			//// blue box
+			//Renderer2D::DrawQuadDefaultParams p5;
+			//p5.tint = { 0.2f, 0.2f, 0.8f, 1.0f };
+			//Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, p5);
 
-			// large checkerboard
-			Renderer2D::DrawQuadDefaultParams p2;
-			p2.tilingFactor = 10.0f;
-			//p2.tint = glm::vec4(1.0, 0.8, 0.8, 1.0);
-			Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 20.0f, 20.0f }, m_CheckerboardTexture, p2);
+			//// large checkerboard
+			//Renderer2D::DrawQuadDefaultParams p2;
+			//p2.tilingFactor = 10.0f;
+			////p2.tint = glm::vec4(1.0, 0.8, 0.8, 1.0);
+			//Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 20.0f, 20.0f }, m_CheckerboardTexture, p2);
 
-			// small checkerboard
-			Renderer2D::DrawQuadDefaultParams p3;
-			p3.tilingFactor = 20.0f;
-			p3.rotationInRad = glm::radians(rotation);
-			Renderer2D::DrawQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_CheckerboardTexture, p3);
+			//// small checkerboard
+			//Renderer2D::DrawQuadDefaultParams p3;
+			//p3.tilingFactor = 20.0f;
+			//p3.rotationInRad = glm::radians(rotation);
+			//Renderer2D::DrawQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_CheckerboardTexture, p3);
 
 
-			// draw the multicolor grid
-			for (float y = -5.0; y < 5.0f; y += 0.5f) {
-				for (float x = -5.0; x < 5.0f; x += 0.5f) {
+			//// draw the multicolor grid
+			//for (float y = -5.0; y < 5.0f; y += 0.5f) {
+			//	for (float x = -5.0; x < 5.0f; x += 0.5f) {
 
-					Renderer2D::DrawQuadDefaultParams p;
-					//p.tint = { 1.0f, 1.0f, 1.0f, 0.3f };
-					p.tint = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.7f };
-					Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, p);
-				}
-			}
+			//		Renderer2D::DrawQuadDefaultParams p;
+			//		//p.tint = { 1.0f, 1.0f, 1.0f, 0.3f };
+			//		p.tint = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.7f };
+			//		Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, p);
+			//	}
+			//}
 			Renderer2D::EndScene();
 			//m_Framebuffer->Unbind();
 
 		}
-#endif
 
 		m_Framebuffer->Unbind();
 	}
@@ -215,7 +224,10 @@ namespace Hazel {
 
 		{
 			ImGui::Begin("Settings");
-			ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
+
+			auto& squareColor = m_ActiveScene->Reg().get<SpriteRendererComponent>(m_SquareEntity).Color;
+
+			ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
 
 			auto stats = Renderer2D::GetStats();
 

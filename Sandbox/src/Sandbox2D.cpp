@@ -152,12 +152,12 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
 	//m_ParticleSystem.OnUpdate(ts);
 	//m_ParticleSystem.OnRender(m_CameraController.GetCamera());
 
-	//// GAME
-	//Hazel::Renderer2D::BeginScene(m_CameraController.GetCamera());
-	////Hazel::Renderer2D::DrawQuad({ 0.0f, 0.0f, 0.5f}, { 1.0f, 1.0f }, m_SpriteSheet);
-	////Hazel::Renderer2D::DrawQuad({ 0.0f, 0.0f, 0.5f}, { 1.0f, 1.0f }, m_TextureStairs);
-	////Hazel::Renderer2D::DrawQuad({ 1.0f, 0.0f, 0.5f}, { 1.0f, 1.0f }, m_TextureBarrel);
-	////Hazel::Renderer2D::DrawQuad({ -1.0f, 0.0f, 0.5f}, { 1.0f, 2.0f }, m_TextureTree);
+	// GAME
+	Hazel::Renderer2D::BeginScene(m_CameraController.GetCamera());
+	//Hazel::Renderer2D::DrawQuad({ 0.0f, 0.0f, 0.5f}, { 1.0f, 1.0f }, m_SpriteSheet);
+	//Hazel::Renderer2D::DrawQuad({ 0.0f, 0.0f, 0.5f}, { 1.0f, 1.0f }, m_TextureStairs);
+	//Hazel::Renderer2D::DrawQuad({ 1.0f, 0.0f, 0.5f}, { 1.0f, 1.0f }, m_TextureBarrel);
+	//Hazel::Renderer2D::DrawQuad({ -1.0f, 0.0f, 0.5f}, { 1.0f, 2.0f }, m_TextureTree);
 
 	//for (uint32_t y = 0; y < m_MapHeight; y++) {
 	//	for (uint32_t x = 0; x < m_MapWidth; x++) {
