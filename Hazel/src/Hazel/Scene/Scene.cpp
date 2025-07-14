@@ -7,7 +7,9 @@
 
 namespace Hazel {
 	
+	/*static void OnTransformConstruct(entt::registry& registry, entt::entity ent) {
 
+	}*/
 
 	Scene::Scene()
 	{
@@ -25,10 +27,6 @@ namespace Hazel {
 			TransformComponent& transform = view.get<TransformComponent>(entity);
 		}
 
-		//auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-		//for (auto entity : group) {
-		//	//auto&[transform, mesh] = group.get<TransformComponent, MeshComponent>(entity);
-		//}
 #endif
 
 	}
@@ -49,8 +47,6 @@ namespace Hazel {
 			p.tint = sprite.Color;
 			Renderer2D::DrawQuad(transform, p);
 		}
-
-
 	}
 
 	entt::entity Scene::CreateEntity()
