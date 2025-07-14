@@ -4,14 +4,18 @@
 #include "Hazel/Core/Timestep.h"
 
 namespace Hazel {
+	class Entity;
+
 	class Scene {
+		friend class Entity;
+
 	public:
 		Scene();
 		~Scene();
 
 		void OnUpdate(Timestep ts);
 
-		entt::entity CreateEntity();
+		Entity CreateEntity(const std::string& name = "Entity");
 
 		// TEMP
 		entt::registry& Reg() { return m_Registry; }

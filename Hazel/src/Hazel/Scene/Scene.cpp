@@ -3,7 +3,7 @@
 #include "Components.h"
 #include "Hazel/Renderer/Renderer2D.h"
 #include <glm/glm.hpp>
-
+#include "Entity.h"
 
 namespace Hazel {
 	
@@ -49,9 +49,12 @@ namespace Hazel {
 		}
 	}
 
-	entt::entity Scene::CreateEntity()
+	Entity Scene::CreateEntity(const std::string& name )
 	{
-		return m_Registry.create();
+		Entity entity = Entity(m_Registry.create(), this);
+		entity.AddComponent<TransformComponent>();
+		auto tag = entity.AddComponent<TagComponent>(name);
+		return entity;
 	}
 
 }
