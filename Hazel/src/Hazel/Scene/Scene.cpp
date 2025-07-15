@@ -4,6 +4,8 @@
 #include "Hazel/Renderer/Renderer2D.h"
 #include <glm/glm.hpp>
 #include "Entity.h"
+#include "entt.hpp"
+
 
 namespace Hazel {
 	
@@ -35,19 +37,59 @@ namespace Hazel {
 	{
 	
 	}
+
+
+
 	void Scene::OnUpdate(Timestep ts)
 	{
-		auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-		for (auto entity : group)
-		{
-			auto& [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+		Camera* mainCamera = nullptr;
+		glm::mat4* cameraTransform = nullptr;
 
-			//Renderer2D::DrawQuad(transform, sprite.Color);
-			Renderer2D::DrawQuadDefaultParams p;
-			p.tint = sprite.Color;
-			Renderer2D::DrawQuad(transform, p);
+		// Render sprites
+		{
+			// find the main camera (if we have one)
+			//auto group = m_Registry.group<TransformComponent, CameraComponent>();
+			//for (auto entity : group) {
+			//auto& [transform, camera] = group.get<TransformComponent, CameraComponent>(entity);
+
+			//if (camera.Primary) {
+			//	mainCamera = &camera.Camera;
+			//	cameraTransform = &transform.Transform;
+			//	break;
+			//}
+
+			auto view = m_Registry.view<TransformComponent, CameraComponent>();
+			view.each([&](auto entity, auto& transform, auto& camera)
+				{
+					if (camera.Primary)
+					{
+						mainCamera = &camera.Camera;
+						cameraTransform = &transform.Transform;
+					}
+				});
+			
+		}
+
+		// if a main camera exists - then render the sprites
+		if (mainCamera) {
+			Renderer2D::BeginScene(mainCamera->GetProjection(), *cameraTransform);
+
+			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+			for (auto entity : group)
+			{
+				auto& [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+
+				//Renderer2D::DrawQuad(transform, sprite.Color);
+				Renderer2D::DrawQuadDefaultParams p;
+				p.tint = sprite.Color;
+				Renderer2D::DrawQuad(transform, p);
+			}
+
+			Renderer2D::EndScene();
 		}
 	}
+	
+
 
 	Entity Scene::CreateEntity(const std::string& name )
 	{

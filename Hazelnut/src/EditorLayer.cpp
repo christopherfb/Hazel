@@ -17,7 +17,7 @@ namespace Hazel {
 	void EditorLayer::OnAttach()
 	{
 		HZ_PROFILE_FUNCTION();
-		m_CheckerboardTexture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
+		m_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
 
 		FramebufferSpecification fbSpec;
 		fbSpec.Width = 1280;
@@ -28,9 +28,14 @@ namespace Hazel {
 		m_ActiveScene = CreateRef<Scene>();
 
 		m_SquareEntity = m_ActiveScene->CreateEntity("Square");
-		
-		
 		m_SquareEntity.AddComponent<SpriteRendererComponent>( glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
+
+		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
+		m_CameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+
+		m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Camera Entity");
+		auto& cc = m_SecondCamera.AddComponent<CameraComponent>(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f));
+		cc.Primary = false;
 
 
 	}
@@ -56,9 +61,9 @@ namespace Hazel {
 		Renderer2D::ResetStats();
 
 		{
+			// Render
 			HZ_PROFILE_SCOPE("Render Prep");
 			m_Framebuffer->Bind();
-
 			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 			RenderCommand::Clear();
 		}
@@ -69,7 +74,7 @@ namespace Hazel {
 
 			HZ_PROFILE_SCOPE("Renderer Draw");
 			// the UploadUniformMat4() call buried in BeginScene() takes a lot of time! (15ms)
-			Renderer2D::BeginScene(m_CameraController.GetCamera());
+			//Renderer2D::BeginScene(m_CameraController.GetCamera());
 
 			// Update Scene
 			m_ActiveScene->OnUpdate(ts);
@@ -112,7 +117,7 @@ namespace Hazel {
 			//		Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, p);
 			//	}
 			//}
-			Renderer2D::EndScene();
+			//Renderer2D::EndScene();
 			//m_Framebuffer->Unbind();
 
 		}
@@ -233,9 +238,19 @@ namespace Hazel {
 				ImGui::Text("%s", m_SquareEntity.GetComponent<TagComponent>().Tag.c_str());
 				auto& squareColor= m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
 				ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
+				ImGui::Separator();
 			}
 
+			ImGui::DragFloat3("Camera Transform",
+				glm::value_ptr(m_CameraEntity.GetComponent<TransformComponent>().Transform[3]));
 			auto stats = Renderer2D::GetStats();
+
+			if (ImGui::Checkbox("Camera A", &m_PrimaryCamera)) {
+				m_CameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
+				m_SecondCamera.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
+			}
+
+
 
 			ImGui::Text("Renderer2D Stats:");
 			ImGui::Text("Draw Calls: %d", stats.DrawCalls);

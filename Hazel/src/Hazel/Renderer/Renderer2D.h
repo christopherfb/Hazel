@@ -1,5 +1,6 @@
 #pragma once
 #include "OrthographicCamera.h"
+#include "Camera.h"
 #include "Texture.h"
 #include "Hazel/Renderer/SubTexture2D.h"
 
@@ -11,6 +12,7 @@ namespace Hazel {
 
 	public:
 
+
 		struct DrawQuadDefaultParams {
 			glm::vec4 tint = glm::vec4(1.0f);
 			float rotationInRad = 0.0f;
@@ -21,7 +23,9 @@ namespace Hazel {
 		static void Init();
 		static void Shutdown();
 
-		static void BeginScene(const OrthographicCamera& camera);
+
+		static void BeginScene(const Camera& camera, const glm::mat4& transform);
+		static void BeginScene(const OrthographicCamera& camera);		// TODO:: remove
 		static void EndScene();
 		static void Flush();
 
