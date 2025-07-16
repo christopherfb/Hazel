@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Hazel.h>
+#include "Panels/SceneHierarchyPanel.h"
 
 
 namespace Hazel {
@@ -42,6 +43,9 @@ namespace Hazel {
 
 		std::unordered_map<char, Ref<Hazel::SubTexture2D>> s_TextureMap;
 		glm::vec2 m_ViewportSize = { 0, 0 };
+
+		// Panels
+		SceneHierarchyPanel m_SceneHierarchyPanel;
 
 	};
 }
