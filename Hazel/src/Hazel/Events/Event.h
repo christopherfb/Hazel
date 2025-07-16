@@ -1,7 +1,7 @@
 #pragma once
 #include "hzpch.h"
 
-#include "Hazel/Core/Core.h"
+#include "Hazel/Core/Base.h"
 
 // now in pch
 //#include <string>

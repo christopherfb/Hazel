@@ -7,7 +7,7 @@
 #include "backends/imgui_impl_glfw.h"
 
 #include "Hazel/Core/Application.h"
-//#include "Hazel/Core.h"  // this gets included in Application.h, and used for the HZ_BIND_EVENT_FN macro
+//#include "Hazel/Base.h"  // this gets included in Application.h, and used for the HZ_BIND_EVENT_FN macro
 //#include "Hazel/Events/Event.h"
 
 // TEMPORARY
