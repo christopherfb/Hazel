@@ -14,6 +14,7 @@ namespace Hazel {
 		~Scene();
 
 		void OnUpdate(Timestep ts);
+		void OnViewportResize(uint32_t width, uint32_t height);
 
 		Entity CreateEntity(const std::string& name = "Entity");
 
@@ -22,5 +23,8 @@ namespace Hazel {
 
 	private:
 		entt::registry m_Registry;
+		uint32_t mViewportWidth = 0;
+		uint32_t mViewportHeight = 0;
+
 	};
 }

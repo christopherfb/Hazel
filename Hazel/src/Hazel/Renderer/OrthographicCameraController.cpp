@@ -53,7 +53,7 @@ namespace Hazel {
 		dispatcher.Dispatch<WindowResizeEvent>(HZ_BIND_EVENT_FN(OrthogrphicCameraController::OnWindowResized));
 	}
 
-	void OrthogrphicCameraController::Resize(float width, float height) {
+	void OrthogrphicCameraController::OnResize(float width, float height) {
 	
 		m_AspectRatio = width / height;
 		CalculateView();
@@ -71,7 +71,7 @@ namespace Hazel {
 	bool OrthogrphicCameraController::OnWindowResized(WindowResizeEvent& e)
 	{
 		HZ_PROFILE_FUNCTION();
-		Resize((float)e.GetWidth(), (float)e.GetHeight());
+		OnResize((float)e.GetWidth(), (float)e.GetHeight());
 		//m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
 		//CalculateView();
 		return false;

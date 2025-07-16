@@ -31,10 +31,10 @@ namespace Hazel {
 		m_SquareEntity.AddComponent<SpriteRendererComponent>( glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
 
 		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
-		m_CameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+		m_CameraEntity.AddComponent<CameraComponent>();
 
 		m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Camera Entity");
-		auto& cc = m_SecondCamera.AddComponent<CameraComponent>(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f));
+		auto& cc = m_SecondCamera.AddComponent<CameraComponent>();
 		cc.Primary = false;
 
 
@@ -50,77 +50,34 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();
 
+		// Resize
+		FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+		HZ_INFO("vp size x: {0} spec width:{1}", m_ViewportSize.x, spec.Width);
+		if (
+			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
+			(spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+		{
+			HZ_CORE_WARN("EditorLayer vp size change");
+			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
+
+			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			//m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
+		}
+
+		// Update
 		if (m_ViewportFocused) {
 			m_CameraController.OnUpdate(ts);
 		}
 
-		//m_ActiveScene->OnUpdate(ts);
-
-
 		//// Render
 		Renderer2D::ResetStats();
+		m_Framebuffer->Bind();
+		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+		RenderCommand::Clear();
 
-		{
-			// Render
-			HZ_PROFILE_SCOPE("Render Prep");
-			m_Framebuffer->Bind();
-			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
-			RenderCommand::Clear();
-		}
-
-		{
-			//static float rotation = 0.0f;
-			//rotation += ts * 50.0f;
-
-			HZ_PROFILE_SCOPE("Renderer Draw");
-			// the UploadUniformMat4() call buried in BeginScene() takes a lot of time! (15ms)
-			//Renderer2D::BeginScene(m_CameraController.GetCamera());
-
-			// Update Scene
-			m_ActiveScene->OnUpdate(ts);
-
-			// red box
-			//Renderer2D::DrawQuadDefaultParams p;
-			//p.rotationInRad = glm::radians(-45.0f);
-			//p.tint = { 0.8f, 0.2f, 0.3f, 1.0f };
-			//Renderer2D::DrawQuad({ 1.0f, 0.0f }, { 0.8f, 0.8f }, p);
-
-			//p.rotationInRad = glm::radians(0.0f);
-			//p.tint = { 0.8f, 0.2f, 0.3f, 1.0f };
-			//Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, p);
-
-			//// blue box
-			//Renderer2D::DrawQuadDefaultParams p5;
-			//p5.tint = { 0.2f, 0.2f, 0.8f, 1.0f };
-			//Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, p5);
-
-			//// large checkerboard
-			//Renderer2D::DrawQuadDefaultParams p2;
-			//p2.tilingFactor = 10.0f;
-			////p2.tint = glm::vec4(1.0, 0.8, 0.8, 1.0);
-			//Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 20.0f, 20.0f }, m_CheckerboardTexture, p2);
-
-			//// small checkerboard
-			//Renderer2D::DrawQuadDefaultParams p3;
-			//p3.tilingFactor = 20.0f;
-			//p3.rotationInRad = glm::radians(rotation);
-			//Renderer2D::DrawQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, m_CheckerboardTexture, p3);
-
-
-			//// draw the multicolor grid
-			//for (float y = -5.0; y < 5.0f; y += 0.5f) {
-			//	for (float x = -5.0; x < 5.0f; x += 0.5f) {
-
-			//		Renderer2D::DrawQuadDefaultParams p;
-			//		//p.tint = { 1.0f, 1.0f, 1.0f, 0.3f };
-			//		p.tint = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.7f };
-			//		Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, p);
-			//	}
-			//}
-			//Renderer2D::EndScene();
-			//m_Framebuffer->Unbind();
-
-		}
+		// Update Scene
+		m_ActiveScene->OnUpdate(ts);
 
 		m_Framebuffer->Unbind();
 	}
@@ -250,7 +207,13 @@ namespace Hazel {
 				m_SecondCamera.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
 			}
 
-
+			{
+				auto& camera = m_SecondCamera.GetComponent<CameraComponent>().Camera;
+				float orthoSize = camera.GetOrthographicSize();
+				if (ImGui::DragFloat("Second camera ortho size", &orthoSize)) {
+					camera.SetOrthographicSize(orthoSize);
+				}
+			}
 
 			ImGui::Text("Renderer2D Stats:");
 			ImGui::Text("Draw Calls: %d", stats.DrawCalls);
@@ -271,18 +234,8 @@ namespace Hazel {
 			m_ViewportHovered = ImGui::IsWindowHovered();
 			Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);
 		
-			
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-			//HZ_WARN("Viewport size: {0}, {1}", viewportPanelSize.x, viewportPanelSize.y);
-
-			// if the viewport has changed size
-			bool sizeChanged = m_ViewportSize.x != viewportPanelSize.x || m_ViewportSize.y != viewportPanelSize.y;
-			bool newSizeIsValid = viewportPanelSize.x > 0 && viewportPanelSize.y > 0;
-			if (sizeChanged && newSizeIsValid) {
-				m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-				m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-				m_CameraController.Resize(viewportPanelSize.x, viewportPanelSize.y);
-			}
+			m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
 			uint32_t textureId = m_Framebuffer->GetColorAttachmentRendererID();
 			ImGui::Image((void*)textureId, viewportPanelSize, ImVec2{ 0,1 }, ImVec2{ 1,0 });
