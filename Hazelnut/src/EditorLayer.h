@@ -32,6 +32,7 @@ namespace Hazel {
 
 		Ref<Scene> m_ActiveScene;
 		Entity m_SquareEntity;
+		Entity m_SquareEntity2;
 		Entity m_CameraEntity;
 		Entity m_SecondCamera;
 
