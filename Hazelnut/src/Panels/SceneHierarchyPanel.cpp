@@ -3,6 +3,7 @@
 #include <imgui/imgui.h>
 #include "Hazel/Scene/Components.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <imgui/imgui_internal.h>
 
 
 namespace Hazel {
@@ -54,6 +55,78 @@ namespace Hazel {
 		//ImGui::Text("%s", tagComponent.Tag.c_str());
 	}
 
+	ImVec4 operator+(const ImVec4& a, const ImVec4& b) {
+		return ImVec4{ a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w };
+	}
+
+	static void DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100) {
+		ImGui::PushID(label.c_str());
+
+
+		ImGui::Columns(2);
+		ImGui::SetColumnWidth(0, columnWidth);
+		ImGui::Text(label.c_str());
+		ImGui::NextColumn();
+
+		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0,0 });
+
+		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
+		int32_t min = 0.0f;
+		int32_t max = 0.0f;
+
+		ImVec4 red = ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f };
+		ImVec4 green = ImVec4{ 0.2f, 0.7f, 0.3f, 1.0f };
+		ImVec4 blue = ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f };
+		ImVec4 lighter = ImVec4{ 0.1f, 0.1f, 0.1f, 0.0f };
+
+		char* decimalFormat = "%.2f";
+		float changeDelta = 0.1f;
+
+		ImGui::PushStyleColor(ImGuiCol_Button, red);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, red + lighter);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, red);
+		if (ImGui::Button("X", buttonSize))
+			values.x = resetValue;
+		ImGui::SameLine();
+		ImGui::DragFloat("##X", &values.x, changeDelta, min, max, decimalFormat);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		ImGui::PopStyleColor(3);
+
+		ImGui::PushStyleColor(ImGuiCol_Button, green);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, green + lighter);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, green);
+
+		if (ImGui::Button("Y", buttonSize))
+			values.y = resetValue;
+		ImGui::SameLine();
+		ImGui::DragFloat("##Y", &values.y, changeDelta, min, max, decimalFormat);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		ImGui::PopStyleColor(3);
+
+		ImGui::PushStyleColor(ImGuiCol_Button, blue);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, blue + lighter);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, blue);
+
+		if (ImGui::Button("Z", buttonSize))
+			values.z = resetValue;
+		ImGui::SameLine();
+		ImGui::DragFloat("##Z", &values.z, changeDelta, min, max, decimalFormat);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		ImGui::PopStyleColor(3);
+
+		ImGui::PopStyleVar();
+		ImGui::Columns(1);
+
+		ImGui::PopID();
+
+	}
+
+
 	void SceneHierarchyPanel::DrawComponents(Entity entity)
 	{
 		if (entity.HasComponent<TagComponent>()) {
@@ -71,8 +144,15 @@ namespace Hazel {
 
 			if (ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Transform")) {
 
-				auto& transform = entity.GetComponent<TransformComponent>();
-				ImGui::DragFloat3("Position", glm::value_ptr(transform.Transform[3]), 0.1f);
+				auto& transformComp = entity.GetComponent<TransformComponent>();
+				//ImGui::DragFloat3("Position", glm::value_ptr(transformComp.Translation), 0.1f);
+				DrawVec3Control("Translation", transformComp.Translation);
+
+				glm::vec3 rotation = glm::degrees(transformComp.Rotation);
+				DrawVec3Control("Rotation", rotation);
+				transformComp.Rotation = glm::radians(rotation);
+
+				DrawVec3Control("Scale", transformComp.Scale, 1.0f);
 				ImGui::TreePop();
 			}
 		}

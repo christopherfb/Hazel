@@ -33,7 +33,7 @@ namespace Hazel {
 		m_SquareEntity2 = m_ActiveScene->CreateEntity("Red Square");
 		m_SquareEntity2.AddComponent<SpriteRendererComponent>( glm::vec4{ 1.0f, 0.0f, 0.0f, 1.0f });
 
-		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
+		m_CameraEntity = m_ActiveScene->CreateEntity("Camera A");
 		m_CameraEntity.AddComponent<CameraComponent>();
 
 		m_SecondCamera = m_ActiveScene->CreateEntity("Camera B");
@@ -44,8 +44,8 @@ namespace Hazel {
 		{
 		public:
 			void OnCreate() {
-				auto& transform = GetComponent<TransformComponent>().Transform;
-				transform[3][0] = rand() % 10 - 5.0f;
+				auto& translation = GetComponent<TransformComponent>().Translation;
+				translation.x = rand() % 10 - 5.0f;
 			}
 
 
@@ -53,18 +53,18 @@ namespace Hazel {
 			void OnUpdate(Timestep ts) {
 				float speed = 5.0f;
 				//std::cout << "OnUpdate() Timestep:" << ts << "\n";
-				auto& transform = GetComponent<TransformComponent>().Transform;
+				auto& translation = GetComponent<TransformComponent>().Translation;
 				if (Input::IsKeyPressed(KeyCode::A)) {
-					transform[3][0] -= speed * ts;;
+					translation.x -= speed * ts;;
 				}
 				if (Input::IsKeyPressed(KeyCode::D)) {
-					transform[3][0] += speed * ts;;
+					translation.x += speed * ts;;
 				}
 				if (Input::IsKeyPressed(KeyCode::W)) {
-					transform[3][1] += speed * ts;;
+					translation.y += speed * ts;;
 				}
 				if (Input::IsKeyPressed(KeyCode::S)) {
-					transform[3][1] -= speed * ts;;
+					translation.y -= speed * ts;;
 				}
 
 			}
