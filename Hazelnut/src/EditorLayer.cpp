@@ -31,14 +31,15 @@ namespace Hazel {
 		m_SquareEntity.AddComponent<SpriteRendererComponent>( glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
 
 		m_SquareEntity2 = m_ActiveScene->CreateEntity("Red Square");
+		m_SquareEntity2.GetComponent<TransformComponent>().Translation.x = 2.0f;
 		m_SquareEntity2.AddComponent<SpriteRendererComponent>( glm::vec4{ 1.0f, 0.0f, 0.0f, 1.0f });
 
 		m_CameraEntity = m_ActiveScene->CreateEntity("Camera A");
 		m_CameraEntity.AddComponent<CameraComponent>();
 
-		m_SecondCamera = m_ActiveScene->CreateEntity("Camera B");
-		auto& cc = m_SecondCamera.AddComponent<CameraComponent>();
-		cc.Primary = false;
+		//m_SecondCamera = m_ActiveScene->CreateEntity("Camera B");
+		//auto& cc = m_SecondCamera.AddComponent<CameraComponent>();
+		//cc.Primary = false;
 
 		class CameraController : public ScriptableEntity
 		{
@@ -71,7 +72,7 @@ namespace Hazel {
 		};
 
 		m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
-		m_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+		//m_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);

@@ -6,6 +6,8 @@
 #include <imgui/imgui_internal.h>
 
 
+
+
 namespace Hazel {
 
 	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& scene)
@@ -32,11 +34,39 @@ namespace Hazel {
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered()) {
 			m_SelectionContext = {};
 		}
+
+		// Right-click on blank space
+		if (ImGui::BeginPopupContextWindow(0, 1 | ImGuiPopupFlags_NoOpenOverItems)) {
+			if (ImGui::MenuItem("Create Empty Entity")) {
+				m_Context->CreateEntity("Empty Entity");
+			}
+			ImGui::EndPopup();
+		}
+
+
 		ImGui::End();
 
 		ImGui::Begin("Properties");
 		if (m_SelectionContext) {
 			DrawComponents(m_SelectionContext);
+
+			char* popupMenuId = "Add Component";
+			if (ImGui::Button(popupMenuId)) {
+				ImGui::OpenPopup(popupMenuId);
+			}
+
+			if (ImGui::BeginPopup(popupMenuId)) {
+				if (ImGui::MenuItem("Camera")) {
+					m_SelectionContext.AddComponent<CameraComponent>(); 
+					ImGui::CloseCurrentPopup();
+				}
+				if (ImGui::MenuItem("Sprite Renderer")) {
+					m_SelectionContext.AddComponent<SpriteRendererComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::EndPopup();
+			}
 		}
 		ImGui::End();
 	}
@@ -49,8 +79,28 @@ namespace Hazel {
 		if (ImGui::IsItemClicked()) {
 			m_SelectionContext = entity;
 		}
+
+		// Right-click on entity
+		bool entityDeleted = false;
+		if (ImGui::BeginPopupContextItem(0, 1 | ImGuiPopupFlags_NoOpenOverItems)) {
+			if (ImGui::MenuItem("Delete Entity")) {
+				//m_Context->DestroyEntity(entity);
+				entityDeleted = true; // flag it as deleted and deal with it at end of method
+			}
+			ImGui::EndPopup();
+		}
+
+
 		if (opened) {
 			ImGui::TreePop();
+		}
+
+		if (entityDeleted) {
+			HZ_INFO("Deleting entity: {0}", entity.GetComponent<TagComponent>().Tag.c_str());
+			m_Context->DestroyEntity(entity);
+			if (m_SelectionContext == entity) {
+				m_SelectionContext = {};
+			}
 		}
 		//ImGui::Text("%s", tagComponent.Tag.c_str());
 	}
@@ -58,7 +108,7 @@ namespace Hazel {
 	ImVec4 operator+(const ImVec4& a, const ImVec4& b) {
 		return ImVec4{ a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w };
 	}
-
+	
 	static void DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100) {
 		ImGui::PushID(label.c_str());
 
@@ -89,43 +139,42 @@ namespace Hazel {
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, red);
 		if (ImGui::Button("X", buttonSize))
 			values.x = resetValue;
+		ImGui::PopStyleColor(3);
+
 		ImGui::SameLine();
 		ImGui::DragFloat("##X", &values.x, changeDelta, min, max, decimalFormat);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
-		ImGui::PopStyleColor(3);
 
 		ImGui::PushStyleColor(ImGuiCol_Button, green);
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, green + lighter);
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, green);
-
 		if (ImGui::Button("Y", buttonSize))
 			values.y = resetValue;
+		ImGui::PopStyleColor(3);
+
 		ImGui::SameLine();
 		ImGui::DragFloat("##Y", &values.y, changeDelta, min, max, decimalFormat);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
-		ImGui::PopStyleColor(3);
 
 		ImGui::PushStyleColor(ImGuiCol_Button, blue);
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, blue + lighter);
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, blue);
-
 		if (ImGui::Button("Z", buttonSize))
 			values.z = resetValue;
+		ImGui::PopStyleColor(3);
+
 		ImGui::SameLine();
 		ImGui::DragFloat("##Z", &values.z, changeDelta, min, max, decimalFormat);
 		ImGui::PopItemWidth();
-		ImGui::SameLine();
-		ImGui::PopStyleColor(3);
 
 		ImGui::PopStyleVar();
 		ImGui::Columns(1);
-
 		ImGui::PopID();
 
 	}
-
+	
 
 	void SceneHierarchyPanel::DrawComponents(Entity entity)
 	{
@@ -139,10 +188,11 @@ namespace Hazel {
 			}
 		}
 
+		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap;
 
 		if (entity.HasComponent<TransformComponent>()) {
-
-			if (ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Transform")) {
+			bool open = ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), treeNodeFlags, "Transform");
+			if (open) {
 
 				auto& transformComp = entity.GetComponent<TransformComponent>();
 				//ImGui::DragFloat3("Position", glm::value_ptr(transformComp.Translation), 0.1f);
@@ -159,7 +209,7 @@ namespace Hazel {
 
 		if (entity.HasComponent<CameraComponent>()) {
 
-			if (ImGui::TreeNodeEx((void*)typeid(CameraComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Camera")) {
+			if (ImGui::TreeNodeEx((void*)typeid(CameraComponent).hash_code(), treeNodeFlags, "Camera")) {
 
 				auto& cameraComponent = entity.GetComponent<CameraComponent>();
 				auto& camera = cameraComponent.Camera;
@@ -223,12 +273,32 @@ namespace Hazel {
 		}
 
 		if (entity.HasComponent<SpriteRendererComponent>()) {
+			bool open = ImGui::TreeNodeEx((void*)typeid(SpriteRendererComponent).hash_code(), treeNodeFlags, "Sprite Renderer");
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4,4 });
+			ImGui::SameLine(ImGui::GetWindowWidth() - 25.0f);
+			char* compSettingsPopupId = "ComponentSettings";
+			if (ImGui::Button("+", ImVec2{ 20,20 })) {
+				ImGui::OpenPopup(compSettingsPopupId);
+			}
+			ImGui::PopStyleVar();
 
-			if (ImGui::TreeNodeEx((void*)typeid(SpriteRendererComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Sprite Renderer")) {
+			bool removeComponent = false;
+			if (ImGui::BeginPopup(compSettingsPopupId)) {
+				if (ImGui::MenuItem("Remove component")) {
+					removeComponent = true;
+				}
+				ImGui::EndPopup();
+			}
+
+			if (open) {
 				auto& srComp = entity.GetComponent<SpriteRendererComponent>();
 				
 				ImGui::ColorEdit4("Color", glm::value_ptr(srComp.Color));
 				ImGui::TreePop();
+			}
+
+			if (removeComponent) {
+				entity.RemoveComponent<SpriteRendererComponent>();
 			}
 		}
 

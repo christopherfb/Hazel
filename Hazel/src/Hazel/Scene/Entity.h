@@ -17,7 +17,9 @@ namespace Hazel {
 		{
 			HZ_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!")
 			// this syntax allows us to pass on a variable number of arguments (in a template fashion)
-			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			m_Scene->OnComponentAdded<T>(*this, component);
+			return component;
 		}
 		
 		template<typename T>
@@ -29,7 +31,8 @@ namespace Hazel {
 
 		template<typename T>
 		bool HasComponent() {
-			return m_Scene->m_Registry.all_of<T>(m_EntityHandle);
+			//return m_Scene->m_Registry.all_of<T>(m_EntityHandle);  // the new way
+			return m_Scene->m_Registry.has<T>(m_EntityHandle);	// the old way
 		}
 
 		template<typename T>
@@ -38,9 +41,11 @@ namespace Hazel {
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 		}
 
-		operator bool() const {
-			return m_EntityHandle != entt::null;
-		}
+		explicit operator bool() const {	return m_EntityHandle != entt::null; }
+
+		operator entt::entity() const { return m_EntityHandle; }
+
+		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 
 		bool operator==(const Entity& other) {
 			return m_EntityHandle == other.m_EntityHandle &&
@@ -51,9 +56,9 @@ namespace Hazel {
 			return !(*this == other);
 		}
 
-		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
+
 	private:
-		entt::entity m_EntityHandle = entt::null;
+		entt::entity m_EntityHandle = { entt::null };
 		Scene* m_Scene = nullptr;
 	};
 
