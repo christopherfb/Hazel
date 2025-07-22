@@ -50,23 +50,7 @@ namespace Hazel {
 		if (m_SelectionContext) {
 			DrawComponents(m_SelectionContext);
 
-			char* popupMenuId = "Add Component";
-			if (ImGui::Button(popupMenuId)) {
-				ImGui::OpenPopup(popupMenuId);
-			}
-
-			if (ImGui::BeginPopup(popupMenuId)) {
-				if (ImGui::MenuItem("Camera")) {
-					m_SelectionContext.AddComponent<CameraComponent>(); 
-					ImGui::CloseCurrentPopup();
-				}
-				if (ImGui::MenuItem("Sprite Renderer")) {
-					m_SelectionContext.AddComponent<SpriteRendererComponent>();
-					ImGui::CloseCurrentPopup();
-				}
-
-				ImGui::EndPopup();
-			}
+			
 		}
 		ImGui::End();
 	}
@@ -75,6 +59,8 @@ namespace Hazel {
 	{
 		auto& tag = entity.GetComponent<TagComponent>().Tag;
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+
 		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
 		if (ImGui::IsItemClicked()) {
 			m_SelectionContext = entity;
@@ -92,6 +78,12 @@ namespace Hazel {
 
 
 		if (opened) {
+			// This is temp code - it shows a child of the entity in ther UI (with the same name) to test opening tree nodes.
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+			bool opened = ImGui::TreeNodeEx((void*)9817239, flags, tag.c_str());
+			if (opened) {
+				ImGui::TreePop();
+			}
 			ImGui::TreePop();
 		}
 
@@ -110,6 +102,11 @@ namespace Hazel {
 	}
 	
 	static void DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100) {
+
+
+		ImGuiIO& io = ImGui::GetIO();
+		auto boldFont = io.Fonts->Fonts[0];
+
 		ImGui::PushID(label.c_str());
 
 
@@ -137,8 +134,10 @@ namespace Hazel {
 		ImGui::PushStyleColor(ImGuiCol_Button, red);
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, red + lighter);
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, red);
+		ImGui::PushFont(boldFont);
 		if (ImGui::Button("X", buttonSize))
 			values.x = resetValue;
+		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
@@ -149,8 +148,10 @@ namespace Hazel {
 		ImGui::PushStyleColor(ImGuiCol_Button, green);
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, green + lighter);
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, green);
+		ImGui::PushFont(boldFont);
 		if (ImGui::Button("Y", buttonSize))
 			values.y = resetValue;
+		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
@@ -161,8 +162,10 @@ namespace Hazel {
 		ImGui::PushStyleColor(ImGuiCol_Button, blue);
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, blue + lighter);
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, blue);
+		ImGui::PushFont(boldFont);
 		if (ImGui::Button("Z", buttonSize))
 			values.z = resetValue;
+		ImGui::PopFont();
 		ImGui::PopStyleColor(3);
 
 		ImGui::SameLine();
@@ -174,7 +177,57 @@ namespace Hazel {
 		ImGui::PopID();
 
 	}
-	
+
+	template<typename T, typename UIFunction>
+	static void DrawComponent(const std::string& name, Entity entity, UIFunction uiFunction) {
+		if (entity.HasComponent<T>()) {
+
+
+			auto& component = entity.GetComponent<T>();
+			ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+			const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen 
+				| ImGuiTreeNodeFlags_Framed 
+				| ImGuiTreeNodeFlags_SpanAvailWidth 
+				| ImGuiTreeNodeFlags_AllowItemOverlap
+				| ImGuiTreeNodeFlags_FramePadding;
+
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4,4 });
+
+			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+			ImGui::Separator();
+
+			bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
+
+			ImGui::PopStyleVar();
+
+			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+
+			char* compSettingsPopupId = "ComponentSettings";
+			if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight })) {
+				ImGui::OpenPopup(compSettingsPopupId);
+			}
+
+			bool removeComponent = false;
+			if (ImGui::BeginPopup(compSettingsPopupId)) {
+				if (ImGui::MenuItem("Remove component")) {
+					removeComponent = true;
+				}
+				ImGui::EndPopup();
+			}
+
+			if (open) {
+				//ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
+				uiFunction(component);
+				ImGui::TreePop();
+			}
+
+			if (removeComponent) {
+				entity.RemoveComponent<T>();
+			}
+		}
+	}
+
 
 	void SceneHierarchyPanel::DrawComponents(Entity entity)
 	{
@@ -183,42 +236,57 @@ namespace Hazel {
 			char buffer[256];
 			memset(buffer, 0, sizeof(buffer));
 			strcpy_s(buffer, sizeof(buffer), tag.c_str());
-			if (ImGui::InputText("Tag", buffer, sizeof(buffer))) {
+			if (ImGui::InputText("##Tag", buffer, sizeof(buffer))) {
 				tag = std::string(buffer);
 			}
 		}
 
-		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap;
+		ImGui::SameLine();
+		ImGui::PushItemWidth(-1);
 
-		if (entity.HasComponent<TransformComponent>()) {
-			bool open = ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), treeNodeFlags, "Transform");
-			if (open) {
-
-				auto& transformComp = entity.GetComponent<TransformComponent>();
-				//ImGui::DragFloat3("Position", glm::value_ptr(transformComp.Translation), 0.1f);
-				DrawVec3Control("Translation", transformComp.Translation);
-
-				glm::vec3 rotation = glm::degrees(transformComp.Rotation);
-				DrawVec3Control("Rotation", rotation);
-				transformComp.Rotation = glm::radians(rotation);
-
-				DrawVec3Control("Scale", transformComp.Scale, 1.0f);
-				ImGui::TreePop();
-			}
+		char* popupMenuId = "Add Component";
+		if (ImGui::Button(popupMenuId)) {
+			ImGui::OpenPopup(popupMenuId);
 		}
 
-		if (entity.HasComponent<CameraComponent>()) {
+		if (ImGui::BeginPopup(popupMenuId)) {
+			if (ImGui::MenuItem("Camera")) {
+				m_SelectionContext.AddComponent<CameraComponent>();
+				ImGui::CloseCurrentPopup();
+			}
+			if (ImGui::MenuItem("Sprite Renderer")) {
+				m_SelectionContext.AddComponent<SpriteRendererComponent>();
+				ImGui::CloseCurrentPopup();
+			}
 
-			if (ImGui::TreeNodeEx((void*)typeid(CameraComponent).hash_code(), treeNodeFlags, "Camera")) {
+			ImGui::EndPopup();
+		}
+		ImGui::PopItemWidth();
 
-				auto& cameraComponent = entity.GetComponent<CameraComponent>();
-				auto& camera = cameraComponent.Camera;
+		DrawComponent<TransformComponent>("Transform", entity,
+			[](auto& component) {
+				//auto& transformComp = entity.GetComponent<TransformComponent>();
+				//ImGui::DragFloat3("Position", glm::value_ptr(transformComp.Translation), 0.1f);
+				DrawVec3Control("Translation", component.Translation);
 
-				ImGui::Checkbox("Primary", &cameraComponent.Primary);
+				glm::vec3 rotation = glm::degrees(component.Rotation);
+				DrawVec3Control("Rotation", rotation);
+				component.Rotation = glm::radians(rotation);
+
+				DrawVec3Control("Scale", component.Scale, 1.0f);
+				//ImGui::TreePop()
+			}
+		);
+
+		DrawComponent<CameraComponent>("Camera", entity,
+			[](auto& component) {
+				auto& camera = component.Camera;
+
+				ImGui::Checkbox("Primary", &component.Primary);
 
 				const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
-				const char* currentProjectionTypeString = projectionTypeStrings[(int)cameraComponent.Camera.GetProjectionType()];
-				if( ImGui::BeginCombo("Projection", currentProjectionTypeString)){
+				const char* currentProjectionTypeString = projectionTypeStrings[(int)camera.GetProjectionType()];
+				if (ImGui::BeginCombo("Projection", currentProjectionTypeString)) {
 					for (int i = 0; i < 2; i++) {
 						bool isSelected = currentProjectionTypeString == projectionTypeStrings[i];
 						if (ImGui::Selectable(projectionTypeStrings[i], isSelected)) {
@@ -254,53 +322,32 @@ namespace Hazel {
 					if (ImGui::DragFloat("Size", &orthoSize)) {
 						camera.SetOrthographicSize(orthoSize);
 					}
-					
+
 					float orthoNear = camera.GetOrthographicNearClip();
 					if (ImGui::DragFloat("Near", &orthoNear)) {
 						camera.SetOrthographicNearClip(orthoNear);
 					}
-					
+
 					float orthoFar = camera.GetOrthographicFarClip();
 					if (ImGui::DragFloat("Far", &orthoFar)) {
 						camera.SetOrthographicFarClip(orthoFar);
 					}
 
-					ImGui::Checkbox("FixedAspectRatio", &cameraComponent.FixedAspectRatio);
+					ImGui::Checkbox("FixedAspectRatio", &component.FixedAspectRatio);
 				}
-
-				ImGui::TreePop();
 			}
-		}
+		);
 
-		if (entity.HasComponent<SpriteRendererComponent>()) {
-			bool open = ImGui::TreeNodeEx((void*)typeid(SpriteRendererComponent).hash_code(), treeNodeFlags, "Sprite Renderer");
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4,4 });
-			ImGui::SameLine(ImGui::GetWindowWidth() - 25.0f);
-			char* compSettingsPopupId = "ComponentSettings";
-			if (ImGui::Button("+", ImVec2{ 20,20 })) {
-				ImGui::OpenPopup(compSettingsPopupId);
-			}
-			ImGui::PopStyleVar();
 
-			bool removeComponent = false;
-			if (ImGui::BeginPopup(compSettingsPopupId)) {
-				if (ImGui::MenuItem("Remove component")) {
-					removeComponent = true;
-				}
-				ImGui::EndPopup();
-			}
+	
 
-			if (open) {
-				auto& srComp = entity.GetComponent<SpriteRendererComponent>();
-				
-				ImGui::ColorEdit4("Color", glm::value_ptr(srComp.Color));
-				ImGui::TreePop();
+		DrawComponent<SpriteRendererComponent>("SpriteRenderer", entity,
+			[](auto& component)	{
+				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
 			}
+		);
 
-			if (removeComponent) {
-				entity.RemoveComponent<SpriteRendererComponent>();
-			}
-		}
+	
 
 	}
 
